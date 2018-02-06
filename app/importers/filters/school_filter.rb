@@ -1,5 +1,5 @@
-class SchoolFilter < Struct.new(:school_local_ids)
+class SchoolFilter < Struct.new(:school_scope)
   def include?(row)
-    school_local_ids.nil? || school_local_ids.include?(row[:school_local_id])
+    school_scope.nil? || school_scope.include?(row[:school_local_id])
   end
 end
