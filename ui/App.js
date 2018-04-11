@@ -10,6 +10,7 @@ import DashboardLoader from '../app/assets/javascripts/school_administrator_dash
 import SchoolCoursesPage from '../app/assets/javascripts/school_courses/SchoolCoursesPage';
 import MountTimer from '../app/assets/javascripts/components/MountTimer';
 import measurePageLoad from '../app/assets/javascripts/helpers/measurePageLoad';
+import SchoolEquityExplorePage from '../app/assets/javascripts/equity/SchoolEquityExplorePage';
 import SchoolEquityPrincipalPage from '../app/assets/javascripts/equity/SchoolEquityPrincipalPage';
 import DistrictEnrollmentPage from '../app/assets/javascripts/district_enrollment/DistrictEnrollmentPage';
 import ImportRecordsPage from '../app/assets/javascripts/import_records/ImportRecordsPage';
@@ -55,6 +56,7 @@ class App extends React.Component {
           <Route exact path="/schools/:id/absences" render={this.renderAbsencesDashboard.bind(this)}/>
           <Route exact path="/schools/:id/tardies" render={this.renderTardiesDashboard.bind(this)}/>
           <Route exact path="/schools/:id/equity/principal" render={this.renderSchoolEquityPrincipalPage.bind(this)}/>
+          <Route exact path="/schools/:id/equity/explore" render={this.renderSchoolEquityExplorePage.bind(this)}/>
           <Route exact path="/district/enrollment" render={this.renderDistrictEnrollmentPage.bind(this)}/>
           <Route render={() => this.renderNotFound()} />
         </Switch>
@@ -75,6 +77,12 @@ class App extends React.Component {
     const schoolId = routeProps.match.params.id;
     this.trackVisit(routeProps, 'SCHOOL_EQUITY_PRINCIPAL_PAGE');
     return <SchoolEquityPrincipalPage schoolId={schoolId} />;
+  }
+
+  renderSchoolEquityExplorePage(routeProps) {
+    const schoolId = routeProps.match.params.id;
+    this.trackVisit(routeProps, 'SCHOOL_EQUITY_EXPLORE_PAGE');
+    return <SchoolEquityExplorePage schoolId={schoolId} />;
   }
 
   renderSchoolCoursesPage(routeProps) {

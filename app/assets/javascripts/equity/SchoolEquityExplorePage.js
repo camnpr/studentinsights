@@ -2,15 +2,15 @@ import React from 'react';
 import GenericLoader from '../components/GenericLoader';
 import ExperimentalBanner from '../components/ExperimentalBanner';
 import {apiFetchJson} from '../helpers/apiFetchJson';
-import _ from 'lodash';
+import Breakdown from '../equity/Breakdown';
 
-export default class SchoolEquityPrincipalPage extends React.Component {
+export default class SchoolEquityExplorePage extends React.Component {
 
   constructor(props) {
     super(props);
 
     this.fetchSchoolOverviewData = this.fetchSchoolOverviewData.bind(this);
-    this.renderPage = this.renderPage.bind(this);
+    this.renderBreakdown = this.renderBreakdown.bind(this);
   }
 
   fetchSchoolOverviewData() {
@@ -21,33 +21,21 @@ export default class SchoolEquityPrincipalPage extends React.Component {
 
   render() {
     return (
-      <div className="SchoolEquityPrincipalPage">
+      <div className="SchoolEquityExplorePage">
         <ExperimentalBanner />
         <GenericLoader
           promiseFn={this.fetchSchoolOverviewData}
-          render={this.renderPage} />
+          render={this.renderBreakdown} />
       </div>
     );
   }
 
-  renderPage(json) {
-    const students = json.students;
-    const studentsByGrade = _.groupBy(students, 'grade');
-    const grades = Object.keys(studentsByGrade);
-
-    return grades.map((grade) => {
-      return this.renderGrade(grades[grade], grade);
-    }, this);
-  }
-
-  renderGrade(gradeStudents, grade) {
-    return (
-      <h4>{grade}</h4>
-    );
+  renderBreakdown(json) {
+    return <Breakdown students={json.students} school={json.school} />;
   }
 
 }
 
-SchoolEquityPrincipalPage.propTypes = {
+SchoolEquityExplorePage.propTypes = {
   schoolId: React.PropTypes.string.isRequired
 };
