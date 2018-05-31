@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import SectionHeading from '../components/SectionHeading';
 import _ from 'lodash';
+import RichTextEditor from 'react-rte';
 
 const styles = {
   textarea: {
@@ -12,35 +13,24 @@ const styles = {
   }
 };
 
-const notePrompts = `What are this student's strengths?
-——————————
+const notePrompts = `**What are this student's strengths?**
+\n\n...
 
+**What is this student's involvement in the school community like?**
+\n\n...
 
-What is this student's involvement in the school community like?
-——————————
+**How does this student relate to their peers?**
+\n\n...
 
+**Who is the student's primary guardian?**
+\n\n...
 
-How does this student relate to their peers?
-——————————
+**Any additional comments or good things to know about this student?**
+\n\n...`;
 
+const restrictedNotePrompts = `**Is this student receiving Social Services and if so, what is the name and contact info of their social worker?** \n\n...
 
-Who is the student's primary guardian?
-——————————
-
-
-Any additional comments or good things to know about this student?
-——————————
-
-
-`;
-
-const restrictedNotePrompts = `Is this student receiving Social Services and if so, what is the name and contact info of their social worker?
-——————————
-
-
-Is this student receiving mental health supports?
-——————————
-  `;
+**Is this student receiving mental health supports?** \n\n...`;
 
 class TransitionNotes extends React.Component {
 
@@ -50,14 +40,18 @@ class TransitionNotes extends React.Component {
     const transitionNotes = props.transitionNotes;
     const regularNote = _.find(transitionNotes, {is_restricted: false});
     const restrictedNote = _.find(transitionNotes, {is_restricted: true});
+    const initRegularNoteText = (regularNote ? (regularNote.text || '') : notePrompts);
+    const initRestrictedNoteText = (restrictedNote ? (restrictedNote.text || '') : restrictedNotePrompts);
 
     this.state = {
-      noteText: (regularNote ? regularNote.text : notePrompts),
-      restrictedNoteText: (restrictedNote ? restrictedNote.text : restrictedNotePrompts),
+      regularNoteRichValue: RichTextEditor.createValueFromString(initRegularNoteText, 'markdown'),
+      restrictedNoteRichValue: RichTextEditor.createValueFromString(initRestrictedNoteText, 'markdown'),
+
       regularNoteId: (regularNote ? regularNote.id : null),
       restrictedNoteId: (restrictedNote ? restrictedNote.id : null)
     };
 
+    this.onChange = this.onChange.bind(this);
     this.onClickSave = this.onClickSave.bind(this);
     this.onClickSaveRestricted = this.onClickSaveRestricted.bind(this);
     this.buttonText = this.buttonText.bind(this);
@@ -87,7 +81,7 @@ class TransitionNotes extends React.Component {
   onClickSave() {
     const params = {
       is_restricted: false,
-      text: this.state.noteText
+      text: this.state.regularNoteRichValue.toString('markdown')
     };
 
     if (this.state.regularNoteId) {
@@ -100,7 +94,7 @@ class TransitionNotes extends React.Component {
   onClickSaveRestricted() {
     const params = {
       is_restricted: true,
-      text: this.state.restrictedNoteText
+      text: this.state.restrictedNoteRichValue.toString('markdown')
     };
 
     if (this.state.restrictedNoteId) {
@@ -110,8 +104,13 @@ class TransitionNotes extends React.Component {
     this.props.onSave(params);
   }
 
+  onChange(richValue, noteType) {
+    this.setState({[noteType]: richValue});
+  }
+
   render() {
     const {noteText, restrictedNoteText, readOnly} = this.state;
+    const toolbarConfig = { display: [] };
 
     return (
       <div style={{display: 'flex'}}>
@@ -119,24 +118,24 @@ class TransitionNotes extends React.Component {
           <SectionHeading>
             High School Transition Note
           </SectionHeading>
-          <textarea
-            rows={10}
-            style={styles.textarea}
-            value={noteText}
-            onChange={(e) => this.setState({noteText: e.target.value})}
-            readOnly={readOnly} />
+          <RichTextEditor
+            rootStyle={{height: 400}}
+            toolbarConfig={toolbarConfig}
+            value={this.state.regularNoteRichValue}
+            onChange={(richValue) => this.onChange(richValue, 'regularNoteRichValue')}
+          />
           {this.renderButton(this.onClickSave, this.buttonText)}
         </div>
         <div style={{flex: 1, margin: 30}}>
           <SectionHeading>
             High School Transition Note (Restricted)
           </SectionHeading>
-          <textarea
-            rows={10}
-            style={styles.textarea}
-            value={restrictedNoteText}
-            onChange={(e) => this.setState({restrictedNoteText: e.target.value})}
-            readOnly={readOnly} />
+          <RichTextEditor
+            rootStyle={{height: 400}}
+            toolbarConfig={toolbarConfig}
+            value={this.state.restrictedNoteRichValue}
+            onChange={(richValue) => this.onChange(richValue, 'restrictedNoteRichValue')}
+          />
           {this.renderButton(this.onClickSaveRestricted, this.buttonTextRestricted)}
         </div>
       </div>
