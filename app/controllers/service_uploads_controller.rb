@@ -5,7 +5,9 @@ class ServiceUploadsController < ApplicationController
 
   def authorize_for_districtwide_access_admin
     unless current_educator.admin? && current_educator.districtwide_access?
-      render json: { error: "You don't have the correct authorization." }
+      error = "You don't have the correct authorization."
+
+      return render json: { error: error }, status: 403
     end
   end
 
