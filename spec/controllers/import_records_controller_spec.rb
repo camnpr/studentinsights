@@ -69,6 +69,7 @@ RSpec.describe ImportRecordsController, type: :controller do
           let(:educator) { FactoryBot.create(:educator) }
           it 'cannot access the page; gets redirected' do
             make_request
+            expect(response).not_to be_success
             expect(JSON.parse(response.body)).to eq({ "error" => "You don't have the correct authorization." })
           end
         end
@@ -78,6 +79,7 @@ RSpec.describe ImportRecordsController, type: :controller do
     context 'not signed in' do
       it 'redirects' do
         make_request
+        expect(response).not_to be_success
         expect(response).to redirect_to(new_educator_session_url)
       end
     end

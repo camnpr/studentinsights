@@ -157,7 +157,10 @@ RSpec.describe ServiceUploadsController, type: :controller do
         let(:educator) { FactoryBot.create(:educator) }
         it 'cannot access the page; gets redirected' do
           make_request
-          expect(JSON.parse(response.body)).to eq({ "error" => "You don't have the correct authorization." })
+          expect(response).not_to be_success
+          expect(JSON.parse(response.body)).to eq({
+            "error" => "You don't have the correct authorization."
+          })
         end
       end
     end

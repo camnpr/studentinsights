@@ -639,6 +639,7 @@ describe StudentsController, :type => :controller do
       it 'does not return any lasids' do
         sign_in(educator)
         make_request
+        expect(response).not_to be_success
         expect(parsed_response).to eq({ "error"=>"You don't have the correct authorization." })
       end
     end
@@ -646,7 +647,9 @@ describe StudentsController, :type => :controller do
     context 'no educator logged in' do
       it 'returns an error' do
         make_request
-        expect(parsed_response).to eq({ "error"=>"You need to sign in before continuing." })
+        expect(parsed_response).to eq({
+          "error"=>"You need to sign in before continuing."
+        })
       end
     end
   end
