@@ -177,6 +177,8 @@ ActiveRecord::Schema.define(version: 20180621194940) do
 
   create_table "failed_login_attempts", force: :cascade do |t|
     t.bigint "educator_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["educator_id"], name: "index_failed_login_attempts_on_educator_id"
   end
 
