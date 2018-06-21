@@ -19,7 +19,10 @@ module Devise
         begin
           educator = Educator.find_by_email(email.downcase)
           fail!(:not_found_in_database) and return unless educator.present?
-          fail!(:invalid) and return unless is_authorized_by_ldap?(ldap_class, email, password)
+          fail!(:invalid) and return unless is_authorized_by_ldap?(
+            ldap_class: ldap_class, educator: educator, email: email, password: password
+          )
+
           success!(educator) and return
         rescue => error
           logger.error "LdapAuthenticatableTiny, error: #{error}"
@@ -31,13 +34,14 @@ module Devise
       private
       # Create a Net::LDAP instance, `bind` to it and close.
       # Return true or false if they're authorized.
-      def is_authorized_by_ldap?(ldap_class, login, password)
+      def is_authorized_by_ldap?(ldap_class:, educator:, email:, password:)
         return false if password.nil? || password == ''
-        options = ldap_options_for(login, password)
+        options = ldap_options_for(email, password)
         ldap = ldap_class.new(options)
         is_authorized = ldap.bind
 
         if !is_authorized
+          FailedLoginAttempt.create(educator: educator)
           ldap_error = ldap.get_operation_result
           logger.error "LdapAuthenticatableTiny, ldap_error: #{ldap_error}"
         end
