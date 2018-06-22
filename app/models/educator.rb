@@ -25,6 +25,10 @@ class Educator < ActiveRecord::Base
 
   VALID_GRADES = [ 'PK', 'KF', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12' ].freeze
 
+  FAILED_LOGIN_NOTIFY_THRESHOLD = 4
+
+  FAILED_LOGIN_NOTIFY_TIMESPAN = 1.hour
+
   # override
   # The `student_searchbar_json` field can be really heavy (~500kb), and
   # there's no circumstances where we want to include it when serializing
@@ -33,8 +37,22 @@ class Educator < ActiveRecord::Base
     super(options.merge({ except: [:student_searchbar_json] }))
   end
 
-  def is_principal?
-    staff_type.try(:downcase) == 'principal'
+  def full_name_or_login
+    full_name || email.split('@')[0]
+  end
+
+  def notify_about_failed_attempts
+    LoginAttemptMailer.notify(self)
+  end
+
+  def failed_logins_within_timespan_count
+    failed_login_attempts.where(
+      "created_at > ?", Time.now - FAILED_LOGIN_NOTIFY_TIMESPAN
+    ).count
+  end
+
+  def should_notify_failed_attemps?
+    return failed_logins_within_timespan_count >= FAILED_LOGIN_NOTIFY_THRESHOLD
   end
 
   def is_authorized_for_student(student)
@@ -64,6 +82,10 @@ class Educator < ActiveRecord::Base
     else
       students
     end
+  end
+
+  def is_principal?
+    staff_type.try(:downcase) == 'principal'
   end
 
   def labels

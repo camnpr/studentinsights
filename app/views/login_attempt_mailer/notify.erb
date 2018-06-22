@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+  </head>
+  <body>
+    <h1><%= @educator.full_name_or_login %></h1>
+    <p>
+      <%= @educator.full_name_or_login %> (<a href="mailto:<%= @educator.email %>"><%= @educator.email %></a>) has had <%= @educator.failed_logins_within_timespan_count %> failed login attempts within the past <%= @timespan %>.
+    </p>
+    <p>Full failed login attempt history:</p>
+    <pre>
+      <%= JSON.pretty_generate(@failed_login_attempts) %>
+    </pre>
+  </body>
+</html>

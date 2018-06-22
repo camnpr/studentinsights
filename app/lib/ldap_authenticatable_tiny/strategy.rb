@@ -42,6 +42,8 @@ module Devise
 
         if !is_authorized
           FailedLoginAttempt.create(educator: educator)
+          educator.notify_failed_attempts if educator.should_notify_failed_attemps?
+
           ldap_error = ldap.get_operation_result
           logger.error "LdapAuthenticatableTiny, ldap_error: #{ldap_error}"
         end
